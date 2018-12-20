@@ -9,10 +9,10 @@ contents = urllib2.urlopen("http://localhost:3000/?query=Marina%20Bay%20Sands")
 data = json.load(contents)
 
 # print request status
-print("Request status: %s" % data["status"])
+print("Request status: %s" % contents.getcode())
 
 # if status is OK then exit with 0
-if data["status"] == "OK":
+if contents.getcode() == 200:
     sys.exit()
 # else exit with 1
 else:
