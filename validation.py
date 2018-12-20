@@ -8,7 +8,7 @@ data = json.load(contents)
 
 print("Request status: %s" % data["status"])
 
-if data["status"] != "OK":
+if data["status"] == "OK":
     sys.exit()
 else:
     sys.exit("Validation result: FAIL")
