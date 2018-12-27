@@ -1,0 +1,42 @@
+pipeline {
+    agent {
+        node { label 'compute' }
+    }
+
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '90', artifactDaysToKeepStr: '90'))
+        disableConcurrentBuilds()
+        timeout(time: 10, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                checkout changelog: false, poll: false, scm: [
+                    $class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    extensions: [[$class: 'CleanBeforeCheckout']],
+                    userRemoteConfigs: [[url: 'https://github.com/roytlk/ascenda.git']]
+                ]
+                
+                sh 'echo "GOOGLE_PLACES_API_KEY=AIzaSyDzklc3NaEIpm1yLwKGyfrZFcJ-Oo7yTdg" > .env'
+                sh 'docker build --pull -t roytan82/ascenda:latest .'
+            }
+        }
+
+        stage('Validation') {
+            steps {
+                sh 'docker-compose down && docker-compose up -d && sleep 10'
+                sh 'python -u validation.py'
+                sh 'docker-compose down'
+            }
+        }
+
+        stage('Release') {
+            steps {
+                sh 'docker push roytan82/ascenda:latest'
+            }
+        }
+    }
+}
