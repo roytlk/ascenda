@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+    web:
+        image: "roytan82/ascenda:latest"
+        ports:
+            - "3000:3000"
+        deploy:
+            replicas: 2
